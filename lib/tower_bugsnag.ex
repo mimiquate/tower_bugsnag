@@ -3,16 +3,10 @@ defmodule TowerBugsnag do
   Documentation for `TowerBugsnag`.
   """
 
-  @doc """
-  Hello world.
+  @behaviour Tower.Reporter
 
-  ## Examples
-
-      iex> TowerBugsnag.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  @impl true
+  def report_event(event) do
+    TowerBugsnag.Reporter.report_event(event)
   end
 end
