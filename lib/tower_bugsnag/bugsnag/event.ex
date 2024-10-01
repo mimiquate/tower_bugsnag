@@ -11,7 +11,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
           message: Exception.message(exception),
           stacktrace: stacktrace_entries(stacktrace)
         }
-      ]
+      ],
+      app: app()
     }
   end
 
@@ -45,5 +46,15 @@ defmodule TowerBugsnag.Bugsnag.Event do
 
   defp entry_method(m, f, args) when is_list(args) do
     Exception.format_mfa(m, f, length(args))
+  end
+
+  defp app do
+    %{
+      releaseStage: environment()
+    }
+  end
+
+  defp environment do
+    Application.fetch_env!(:tower_bugsnag, :environment)
   end
 end

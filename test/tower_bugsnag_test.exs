@@ -40,7 +40,10 @@ defmodule TowerBugsnagTest do
                       "message" => "bad argument in arithmetic expression",
                       "stacktrace" => stacktrace_entries
                     }
-                  ]
+                  ],
+                  "app" => %{
+                    "releaseStage" => "test"
+                  }
                 }
               ]
             }
@@ -51,7 +54,7 @@ defmodule TowerBugsnagTest do
           %{
             "file" => "test/tower_bugsnag_test.exs",
             "method" => ~s(anonymous fn/0 in TowerBugsnagTest."test reports arithmetic error"/1),
-            "lineNumber" => 67
+            "lineNumber" => 70
           } = List.first(stacktrace_entries)
         )
 
