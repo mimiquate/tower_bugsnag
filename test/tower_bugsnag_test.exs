@@ -123,6 +123,56 @@ defmodule TowerBugsnagTest do
     end)
   end
 
+  test "reports abnormal exit", %{bypass: bypass} do
+    waiting_for(fn done ->
+      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+        assert(
+          {
+            :ok,
+            %{
+              "events" => [
+                %{
+                  "exceptions" => [
+                    %{
+                      "errorClass" => "(exit)",
+                      "message" => "abnormal",
+                      "stacktrace" => [
+                        %{
+                          "file" => "test/tower_bugsnag_test.exs",
+                          "method" =>
+                            ~s(anonymous fn/0 in TowerBugsnagTest."test reports abnormal exit"/1),
+                          "lineNumber" => 170
+                        }
+                        | _
+                      ]
+                    }
+                  ],
+                  "app" => %{
+                    "releaseStage" => "test"
+                  }
+                }
+              ]
+            }
+          } = Jason.decode(body)
+        )
+
+        done.()
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+      end)
+
+      capture_log(fn ->
+        in_unlinked_process(fn ->
+          exit(:abnormal)
+        end)
+      end)
+    end)
+  end
+
   defp waiting_for(fun) do
     # ref message synchronization trick copied from
     # https://github.com/PSPDFKit-labs/bypass/issues/112

@@ -33,6 +33,23 @@ defmodule TowerBugsnag.Bugsnag.Event do
     }
   end
 
+  def from_tower_event(%Tower.Event{
+        kind: :exit,
+        reason: reason,
+        stacktrace: stacktrace
+      }) do
+    %{
+      exceptions: [
+        %{
+          errorClass: "(exit)",
+          message: reason,
+          stacktrace: stacktrace_entries(stacktrace)
+        }
+      ],
+      app: app()
+    }
+  end
+
   defp stacktrace_entries(stacktrace) do
     stacktrace
     |> Enum.map(&stacktrace_entry(&1))
