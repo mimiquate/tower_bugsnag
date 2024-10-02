@@ -13,7 +13,12 @@ defmodule TowerBugsnag.MixProject do
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      package: package()
+      package: package(),
+
+      # Docs
+      name: "TowerBugsnag",
+      source_url: @source_url,
+      docs: docs()
     ]
   end
 
@@ -31,6 +36,9 @@ defmodule TowerBugsnag.MixProject do
       {:jason, "~> 1.4"},
       {:tower, "~> 0.5.0"},
 
+      # Dev
+      {:ex_doc, "~> 0.34.2", only: :dev, runtime: false},
+
       # Test
       {:bypass, github: "mimiquate/bypass", only: :test}
     ]
@@ -42,6 +50,13 @@ defmodule TowerBugsnag.MixProject do
       links: %{
         "GitHub" => @source_url
       }
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md"]
     ]
   end
 end
