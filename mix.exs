@@ -11,6 +11,7 @@ defmodule TowerBugsnag.MixProject do
       description: @description,
       version: @version,
       elixir: "~> 1.15",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
@@ -21,6 +22,9 @@ defmodule TowerBugsnag.MixProject do
       docs: docs()
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application do
@@ -40,7 +44,8 @@ defmodule TowerBugsnag.MixProject do
       {:ex_doc, "~> 0.34.2", only: :dev, runtime: false},
 
       # Test
-      {:bypass, github: "mimiquate/bypass", only: :test}
+      {:bypass, github: "mimiquate/bypass", only: :test},
+      {:plug_cowboy, "~> 2.7", only: :test}
     ]
   end
 

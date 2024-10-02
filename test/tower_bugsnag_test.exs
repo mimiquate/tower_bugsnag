@@ -173,6 +173,62 @@ defmodule TowerBugsnagTest do
     end)
   end
 
+  test "includes exception request data if available with Plug.Cowboy", %{bypass: bypass} do
+    waiting_for(fn done ->
+      # An ephemeral port hopefully not being in the host running this code
+      plug_port = 51111
+      url = "http://127.0.0.1:#{plug_port}/arithmetic-error"
+
+      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+        assert(
+          {
+            :ok,
+            %{
+              "events" => [
+                %{
+                  "exceptions" => [
+                    %{
+                      "errorClass" => "ArithmeticError",
+                      "message" => "bad argument in arithmetic expression",
+                      "stacktrace" => [
+                        %{
+                          "file" => "test/support/error_test_plug.ex",
+                          "method" => ~s(anonymous fn/2 in TowerBugsnag.ErrorTestPlug.do_match/4),
+                          "lineNumber" => 8
+                        }
+                        | _
+                      ]
+                    }
+                  ],
+                  "app" => %{
+                    "releaseStage" => "test"
+                  },
+                  "request" => %{"httpMethod" => "GET", "url" => ^url}
+                }
+              ]
+            }
+          } = Jason.decode(body)
+        )
+
+        done.()
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+      end)
+
+      start_supervised!(
+        {Plug.Cowboy, plug: TowerBugsnag.ErrorTestPlug, scheme: :http, port: plug_port}
+      )
+
+      capture_log(fn ->
+        {:ok, _response} = :httpc.request(:get, {url, [{~c"user-agent", "httpc client"}]}, [], [])
+      end)
+    end)
+  end
+
   defp waiting_for(fun) do
     # ref message synchronization trick copied from
     # https://github.com/PSPDFKit-labs/bypass/issues/112

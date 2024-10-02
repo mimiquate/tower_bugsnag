@@ -2,7 +2,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
   def from_tower_event(%Tower.Event{
         kind: :error,
         reason: exception,
-        stacktrace: stacktrace
+        stacktrace: stacktrace,
+        plug_conn: plug_conn
       }) do
     %{
       exceptions: [
@@ -12,14 +13,16 @@ defmodule TowerBugsnag.Bugsnag.Event do
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
-      app: app()
+      app: app_data(),
+      request: request_data(plug_conn)
     }
   end
 
   def from_tower_event(%Tower.Event{
         kind: :throw,
         reason: value,
-        stacktrace: stacktrace
+        stacktrace: stacktrace,
+        plug_conn: plug_conn
       }) do
     %{
       exceptions: [
@@ -29,14 +32,16 @@ defmodule TowerBugsnag.Bugsnag.Event do
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
-      app: app()
+      app: app_data(),
+      request: request_data(plug_conn)
     }
   end
 
   def from_tower_event(%Tower.Event{
         kind: :exit,
         reason: reason,
-        stacktrace: stacktrace
+        stacktrace: stacktrace,
+        plug_conn: plug_conn
       }) do
     %{
       exceptions: [
@@ -46,7 +51,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
-      app: app()
+      app: app_data(),
+      request: request_data(plug_conn)
     }
   end
 
@@ -82,7 +88,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
     Exception.format_mfa(m, f, length(args))
   end
 
-  defp app do
+  defp app_data do
     %{
       releaseStage: environment()
     }
@@ -90,5 +96,18 @@ defmodule TowerBugsnag.Bugsnag.Event do
 
   defp environment do
     Application.fetch_env!(:tower_bugsnag, :environment)
+  end
+
+  if Code.ensure_loaded?(Plug.Conn) do
+    defp request_data(%Plug.Conn{} = conn) do
+      %{
+        httpMethod: conn.method,
+        url: "#{conn.scheme}://#{conn.host}:#{conn.port}#{conn.request_path}"
+      }
+    end
+
+    defp request_data(_), do: %{}
+  else
+    defp request_data(_), do: %{}
   end
 end
