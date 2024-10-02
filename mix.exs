@@ -3,7 +3,7 @@ defmodule TowerBugsnag.MixProject do
 
   @description "Error tracking and reporting to BugSnag"
   @source_url "https://github.com/mimiquate/tower_bugsnag"
-  @version "0.1.0"
+  @version "0.1.1"
 
   def project do
     [
