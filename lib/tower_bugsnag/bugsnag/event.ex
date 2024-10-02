@@ -16,6 +16,23 @@ defmodule TowerBugsnag.Bugsnag.Event do
     }
   end
 
+  def from_tower_event(%Tower.Event{
+        kind: :throw,
+        reason: value,
+        stacktrace: stacktrace
+      }) do
+    %{
+      exceptions: [
+        %{
+          errorClass: "(throw)",
+          message: value,
+          stacktrace: stacktrace_entries(stacktrace)
+        }
+      ],
+      app: app()
+    }
+  end
+
   defp stacktrace_entries(stacktrace) do
     stacktrace
     |> Enum.map(&stacktrace_entry(&1))
