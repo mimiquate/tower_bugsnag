@@ -16,7 +16,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
       ],
       app: app_data(),
       user: user_data(metadata),
-      request: request_data(plug_conn)
+      request: request_data(plug_conn),
+      metaData: metadata
     }
   end
 
@@ -37,7 +38,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
       ],
       app: app_data(),
       user: user_data(metadata),
-      request: request_data(plug_conn)
+      request: request_data(plug_conn),
+      metaData: metadata
     }
   end
 
@@ -58,7 +60,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
       ],
       app: app_data(),
       user: user_data(metadata),
-      request: request_data(plug_conn)
+      request: request_data(plug_conn),
+      metaData: metadata
     }
   end
 
