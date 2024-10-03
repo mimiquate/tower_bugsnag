@@ -27,7 +27,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
     %{
       exceptions: [
         %{
-          errorClass: "(throw)",
+          errorClass: "(throw) #{value}",
           message: value,
           stacktrace: stacktrace_entries(stacktrace)
         }
@@ -46,7 +46,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
     %{
       exceptions: [
         %{
-          errorClass: "(exit)",
+          errorClass: "(exit) #{reason}",
           message: reason,
           stacktrace: stacktrace_entries(stacktrace)
         }
