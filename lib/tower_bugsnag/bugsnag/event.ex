@@ -78,6 +78,34 @@ defmodule TowerBugsnag.Bugsnag.Event do
     }
   end
 
+  def from_tower_event(
+        %Tower.Event{
+          level: level,
+          kind: :message,
+          reason: message,
+          stacktrace: stacktrace,
+          plug_conn: plug_conn
+        } = event
+      ) do
+    %{
+      exceptions: [
+        %{
+          errorClass: inspect(message),
+          message: inspect(message),
+          stacktrace: stacktrace_entries(stacktrace)
+        }
+      ],
+      unhandled: !manual_report?(event),
+      severity: severity_from_tower_level(level),
+      app: app_data(),
+      request: request_data(plug_conn)
+    }
+  end
+
+  defp stacktrace_entries(nil) do
+    []
+  end
+
   defp stacktrace_entries(stacktrace) do
     stacktrace
     |> Enum.map(&stacktrace_entry(&1))
@@ -108,6 +136,14 @@ defmodule TowerBugsnag.Bugsnag.Event do
 
   defp entry_method(m, f, args) when is_list(args) do
     Exception.format_mfa(m, f, length(args))
+  end
+
+  defp severity_from_tower_level(level) when level in [:warning, :info] do
+    level
+  end
+
+  defp severity_from_tower_level(_) do
+    :error
   end
 
   defp app_data do
