@@ -43,7 +43,7 @@ defmodule TowerBugsnag.Bugsnag.Client do
   defp notifier do
     %{
       name: "tower_bugsnag",
-      version: "0.1.0",
+      version: Application.spec(:tower_bugsnag, :vsn) |> to_string(),
       url: "https://hex.pm/packages/tower_bugsnag"
     }
   end
