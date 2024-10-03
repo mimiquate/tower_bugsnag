@@ -205,7 +205,11 @@ defmodule TowerBugsnagTest do
                   "app" => %{
                     "releaseStage" => "test"
                   },
-                  "request" => %{"httpMethod" => "GET", "url" => ^url}
+                  "request" => %{
+                    "httpMethod" => "GET",
+                    "url" => ^url,
+                    "headers" => %{"user-agent" => "httpc client"}
+                  }
                 }
               ]
             }

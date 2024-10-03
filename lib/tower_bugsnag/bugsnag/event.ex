@@ -108,14 +108,25 @@ defmodule TowerBugsnag.Bugsnag.Event do
   end
 
   if Code.ensure_loaded?(Plug.Conn) do
+    @reported_request_headers ["user-agent"]
+
     defp request_data(%Plug.Conn{} = conn) do
       %{
         httpMethod: conn.method,
-        url: "#{conn.scheme}://#{conn.host}:#{conn.port}#{conn.request_path}"
+        url: "#{conn.scheme}://#{conn.host}:#{conn.port}#{conn.request_path}",
+        headers: request_headers(conn)
       }
     end
 
     defp request_data(_), do: %{}
+
+    defp request_headers(%Plug.Conn{} = conn) do
+      conn.req_headers
+      |> Enum.filter(fn {header_name, _header_value} ->
+        String.downcase(header_name) in @reported_request_headers
+      end)
+      |> Enum.into(%{})
+    end
   else
     defp request_data(_), do: %{}
   end
