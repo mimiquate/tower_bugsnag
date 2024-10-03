@@ -3,7 +3,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
         kind: :error,
         reason: exception,
         stacktrace: stacktrace,
-        plug_conn: plug_conn
+        plug_conn: plug_conn,
+        metadata: metadata
       }) do
     %{
       exceptions: [
@@ -14,6 +15,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
         }
       ],
       app: app_data(),
+      user: user_data(metadata),
       request: request_data(plug_conn)
     }
   end
@@ -22,7 +24,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
         kind: :throw,
         reason: value,
         stacktrace: stacktrace,
-        plug_conn: plug_conn
+        plug_conn: plug_conn,
+        metadata: metadata
       }) do
     %{
       exceptions: [
@@ -33,6 +36,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
         }
       ],
       app: app_data(),
+      user: user_data(metadata),
       request: request_data(plug_conn)
     }
   end
@@ -41,7 +45,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
         kind: :exit,
         reason: reason,
         stacktrace: stacktrace,
-        plug_conn: plug_conn
+        plug_conn: plug_conn,
+        metadata: metadata
       }) do
     %{
       exceptions: [
@@ -52,6 +57,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
         }
       ],
       app: app_data(),
+      user: user_data(metadata),
       request: request_data(plug_conn)
     }
   end
@@ -109,5 +115,13 @@ defmodule TowerBugsnag.Bugsnag.Event do
     defp request_data(_), do: %{}
   else
     defp request_data(_), do: %{}
+  end
+
+  defp user_data(%{user_id: user_id}) do
+    %{user: %{id: user_id}}
+  end
+
+  defp user_data(_) do
+    %{}
   end
 end
