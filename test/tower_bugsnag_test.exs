@@ -11,10 +11,8 @@ defmodule TowerBugsnagTest do
     Application.put_env(:tower_bugsnag, :api_key, "test-api-key")
     Application.put_env(:tower_bugsnag, :environment, :test)
     Application.put_env(:tower, :reporters, [TowerBugsnag])
-    Tower.attach()
 
     on_exit(fn ->
-      Tower.detach()
       Application.put_env(:tower_bugsnag, :api_key, nil)
       Application.put_env(:tower_bugsnag, :environment, nil)
       Application.put_env(:tower, :reporters, [])
@@ -43,7 +41,7 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports arithmetic error"/1),
-                          "lineNumber" => 70
+                          "lineNumber" => 68
                         }
                         | _
                       ]
@@ -93,7 +91,7 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports throw"/1),
-                          "lineNumber" => 120
+                          "lineNumber" => 118
                         }
                         | _
                       ]
@@ -143,7 +141,7 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports abnormal exit"/1),
-                          "lineNumber" => 170
+                          "lineNumber" => 168
                         }
                         | _
                       ]

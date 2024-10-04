@@ -22,20 +22,7 @@ end
 
 ## Usage
 
-First, attach `Tower` to automatically capture errors.
-
-```elixir
-# lib/<your_app>/application.ex
-
-defmodule YourApp.Application do
-  def start(_type, _args) do
-    Tower.attach()
-
-    # rest of your code
-  end
-```
-
-Then tell `Tower` to inform `TowerBugsnag` about them.
+Register `TowerBugsnag` as a reporter.
 
 ```elixir
 # config/config.exs
@@ -62,7 +49,7 @@ end
 
 That's it.
 
-It will try report any errors (exceptions, throws or abnormal exits) within your application. That includes errors in
+It will report any errors (exceptions, throws or abnormal exits) within your application. That includes errors in
 any plug call (including Phoenix), Oban job, async task or any other Elixir process.
 
 ### Manual reporting
