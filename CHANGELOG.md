@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2024-10-04
+
+### Changed
+
+- No longer necessary to call `Tower.attach()` in your application `start`. It is done
+automatically.
+
+- Updates `tower` dependency from `{:tower, "~> 0.5.0"}` to `{:tower, "~> 0.6.0"}`.
+
 ## [0.1.3] - 2024-10-03
 
 ### Fixed
@@ -37,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reports throws
 - Reports abnormal exits
 
+[0.2.0]: https://github.com/mimiquate/tower_bugsnag/compare/v0.1.3...v0.2.0/
 [0.1.3]: https://github.com/mimiquate/tower_bugsnag/compare/v0.1.2...v0.1.3/
 [0.1.2]: https://github.com/mimiquate/tower_bugsnag/compare/v0.1.1...v0.1.2/
 [0.1.1]: https://github.com/mimiquate/tower_bugsnag/compare/v0.1.0...v0.1.1/
