@@ -6,7 +6,5 @@ defmodule TowerBugsnag do
   @behaviour Tower.Reporter
 
   @impl true
-  def report_event(event) do
-    TowerBugsnag.Reporter.report_event(event)
-  end
+  defdelegate report_event(event), to: TowerBugsnag.Reporter
 end
