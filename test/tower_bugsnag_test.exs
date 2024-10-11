@@ -9,12 +9,12 @@ defmodule TowerBugsnagTest do
 
     Application.put_env(:tower_bugsnag, :base_url, "http://localhost:#{bypass.port}")
     Application.put_env(:tower_bugsnag, :api_key, "test-api-key")
-    Application.put_env(:tower_bugsnag, :environment, :test)
+    Application.put_env(:tower_bugsnag, :release_stage, :test)
     Application.put_env(:tower, :reporters, [TowerBugsnag])
 
     on_exit(fn ->
       Application.put_env(:tower_bugsnag, :api_key, nil)
-      Application.put_env(:tower_bugsnag, :environment, nil)
+      Application.put_env(:tower_bugsnag, :release_stage, nil)
       Application.put_env(:tower, :reporters, [])
     end)
 

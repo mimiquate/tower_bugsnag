@@ -99,12 +99,12 @@ defmodule TowerBugsnag.Bugsnag.Event do
 
   defp app_data do
     %{
-      releaseStage: environment()
+      releaseStage: release_stage()
     }
   end
 
-  defp environment do
-    Application.fetch_env!(:tower_bugsnag, :environment)
+  defp release_stage do
+    Application.fetch_env!(:tower_bugsnag, :release_stage)
   end
 
   if Code.ensure_loaded?(Plug.Conn) do
