@@ -44,6 +44,7 @@ defmodule TowerBugsnag.MixProject do
       {:ex_doc, "~> 0.34.2", only: :dev, runtime: false},
 
       # Test
+      {:bandit, "~> 1.5", only: :test},
       {:bypass, github: "mimiquate/bypass", only: :test},
       {:plug_cowboy, "~> 2.7", only: :test}
     ]
