@@ -134,8 +134,8 @@ defmodule TowerBugsnagTest do
                 %{
                   "exceptions" => [
                     %{
-                      "errorClass" => "(exit) abnormal",
-                      "message" => "abnormal",
+                      "errorClass" => "(exit) :abnormal",
+                      "message" => ":abnormal",
                       "stacktrace" => [
                         %{
                           "file" => "test/tower_bugsnag_test.exs",
@@ -166,6 +166,56 @@ defmodule TowerBugsnagTest do
       capture_log(fn ->
         in_unlinked_process(fn ->
           exit(:abnormal)
+        end)
+      end)
+    end)
+  end
+
+  test "reports :gen_server bad exit", %{bypass: bypass} do
+    waiting_for(fn done ->
+      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+        assert(
+          {
+            :ok,
+            %{
+              "events" => [
+                %{
+                  "exceptions" => [
+                    %{
+                      "errorClass" => "(exit) bad return value: \"bad value\"",
+                      "message" => "bad return value: \"bad value\"",
+                      "stacktrace" => [
+                        %{
+                          "file" => "test/tower_bugsnag_test.exs",
+                          "method" =>
+                            ~s(anonymous fn/0 in TowerBugsnagTest."test reports :gen_server bad exit"/1),
+                          "lineNumber" => 218
+                        }
+                        | _
+                      ]
+                    }
+                  ],
+                  "app" => %{
+                    "releaseStage" => "test"
+                  }
+                }
+              ]
+            }
+          } = Jason.decode(body)
+        )
+
+        done.()
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+      end)
+
+      capture_log(fn ->
+        in_unlinked_process(fn ->
+          exit({:bad_return_value, "bad value"})
         end)
       end)
     end)

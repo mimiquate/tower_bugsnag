@@ -50,11 +50,13 @@ defmodule TowerBugsnag.Bugsnag.Event do
         plug_conn: plug_conn,
         metadata: metadata
       }) do
+    formatted_reason = Exception.format_exit(reason)
+
     %{
       exceptions: [
         %{
-          errorClass: "(exit) #{reason}",
-          message: reason,
+          errorClass: "(exit) #{formatted_reason}",
+          message: formatted_reason,
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
