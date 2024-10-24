@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2024-10-24
+
+### Changed
+
+- Change config name from `:environment` to `:release_stage` (prefers use of BugSnag specific nomenclature)
+
+### Fixed
+
+- Properly report common `:gen_server` abnormal exits
+
 ## [0.2.0] - 2024-10-04
 
 ### Changed
@@ -46,6 +56,7 @@ automatically.
 - Reports throws
 - Reports abnormal exits
 
+[0.3.0]: https://github.com/mimiquate/tower_bugsnag/compare/v0.2.0...v0.3.0/
 [0.2.0]: https://github.com/mimiquate/tower_bugsnag/compare/v0.1.3...v0.2.0/
 [0.1.3]: https://github.com/mimiquate/tower_bugsnag/compare/v0.1.2...v0.1.3/
 [0.1.2]: https://github.com/mimiquate/tower_bugsnag/compare/v0.1.1...v0.1.2/
