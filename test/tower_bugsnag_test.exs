@@ -84,8 +84,8 @@ defmodule TowerBugsnagTest do
                 %{
                   "exceptions" => [
                     %{
-                      "errorClass" => "(throw) something",
-                      "message" => "something",
+                      "errorClass" => "(throw) \"something\"",
+                      "message" => "\"something\"",
                       "stacktrace" => [
                         %{
                           "file" => "test/tower_bugsnag_test.exs",

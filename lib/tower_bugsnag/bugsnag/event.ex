@@ -28,11 +28,13 @@ defmodule TowerBugsnag.Bugsnag.Event do
         plug_conn: plug_conn,
         metadata: metadata
       }) do
+    formatted_value = inspect(value)
+
     %{
       exceptions: [
         %{
-          errorClass: "(throw) #{value}",
-          message: value,
+          errorClass: "(throw) #{formatted_value}",
+          message: formatted_value,
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
