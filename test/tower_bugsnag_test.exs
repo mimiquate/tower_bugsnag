@@ -298,19 +298,26 @@ defmodule TowerBugsnagTest do
                 %{
                   "exceptions" => [
                     %{
-                      # An exit instead of a throw because Bandit doesn't handle throw's
-                      # for the moment. See: https://github.com/mtrudel/bandit/issues/410.
-                      "errorClass" => "(exit) bad return value: \"something\"",
-                      "message" => "bad return value: \"something\"",
-                      # No stacktrace
-                      "stacktrace" => []
+                      "errorClass" => "(throw) \"something\"",
+                      "message" => "\"something\"",
+                      "stacktrace" => [
+                        %{
+                          "file" => "test/support/error_test_plug.ex",
+                          "method" => ~s(anonymous fn/2 in TowerBugsnag.ErrorTestPlug.do_match/4),
+                          "lineNumber" => 14
+                        }
+                        | _
+                      ]
                     }
                   ],
                   "app" => %{
                     "releaseStage" => "test"
                   },
-                  # No request data
-                  "request" => %{}
+                  "request" => %{
+                    "httpMethod" => "GET",
+                    "url" => ^url,
+                    "headers" => %{"user-agent" => "httpc client"}
+                  }
                 }
               ]
             }
@@ -329,8 +336,7 @@ defmodule TowerBugsnagTest do
           {Bandit, plug: TowerBugsnag.ErrorTestPlug, scheme: :http, port: plug_port}
         )
 
-        {:error, _response} =
-          :httpc.request(:get, {url, [{~c"user-agent", "httpc client"}]}, [], [])
+        {:ok, _response} = :httpc.request(:get, {url, [{~c"user-agent", "httpc client"}]}, [], [])
       end)
     end)
   end
