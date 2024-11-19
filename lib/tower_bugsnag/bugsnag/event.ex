@@ -1,11 +1,13 @@
 defmodule TowerBugsnag.Bugsnag.Event do
-  def from_tower_event(%Tower.Event{
-        kind: :error,
-        reason: exception,
-        stacktrace: stacktrace,
-        plug_conn: plug_conn,
-        metadata: metadata
-      }) do
+  def from_tower_event(
+        %Tower.Event{
+          kind: :error,
+          reason: exception,
+          stacktrace: stacktrace,
+          plug_conn: plug_conn,
+          metadata: metadata
+        } = event
+      ) do
     %{
       exceptions: [
         %{
@@ -14,6 +16,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
+      unhandled: !manual_report?(event),
       app: app_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
@@ -21,13 +24,15 @@ defmodule TowerBugsnag.Bugsnag.Event do
     }
   end
 
-  def from_tower_event(%Tower.Event{
-        kind: :throw,
-        reason: value,
-        stacktrace: stacktrace,
-        plug_conn: plug_conn,
-        metadata: metadata
-      }) do
+  def from_tower_event(
+        %Tower.Event{
+          kind: :throw,
+          reason: value,
+          stacktrace: stacktrace,
+          plug_conn: plug_conn,
+          metadata: metadata
+        } = event
+      ) do
     formatted_value = inspect(value)
 
     %{
@@ -38,6 +43,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
+      unhandled: !manual_report?(event),
       app: app_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
@@ -45,13 +51,15 @@ defmodule TowerBugsnag.Bugsnag.Event do
     }
   end
 
-  def from_tower_event(%Tower.Event{
-        kind: :exit,
-        reason: reason,
-        stacktrace: stacktrace,
-        plug_conn: plug_conn,
-        metadata: metadata
-      }) do
+  def from_tower_event(
+        %Tower.Event{
+          kind: :exit,
+          reason: reason,
+          stacktrace: stacktrace,
+          plug_conn: plug_conn,
+          metadata: metadata
+        } = event
+      ) do
     formatted_reason = Exception.format_exit(reason)
 
     %{
@@ -62,6 +70,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
           stacktrace: stacktrace_entries(stacktrace)
         }
       ],
+      unhandled: !manual_report?(event),
       app: app_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
@@ -142,4 +151,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
   defp user_data(_) do
     %{}
   end
+
+  defp manual_report?(%{by: nil}), do: true
+  defp manual_report?(_), do: false
 end

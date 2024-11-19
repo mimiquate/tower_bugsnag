@@ -41,7 +41,7 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports arithmetic error"/1),
-                          "lineNumber" => 68
+                          "lineNumber" => 69
                         }
                         | _
                       ]
@@ -49,7 +49,8 @@ defmodule TowerBugsnagTest do
                   ],
                   "app" => %{
                     "releaseStage" => "test"
-                  }
+                  },
+                  "unhandled" => true
                 }
               ]
             }
@@ -91,7 +92,7 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports throw"/1),
-                          "lineNumber" => 118
+                          "lineNumber" => 120
                         }
                         | _
                       ]
@@ -99,7 +100,8 @@ defmodule TowerBugsnagTest do
                   ],
                   "app" => %{
                     "releaseStage" => "test"
-                  }
+                  },
+                  "unhandled" => true
                 }
               ]
             }
@@ -141,7 +143,7 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports abnormal exit"/1),
-                          "lineNumber" => 168
+                          "lineNumber" => 171
                         }
                         | _
                       ]
@@ -149,7 +151,8 @@ defmodule TowerBugsnagTest do
                   ],
                   "app" => %{
                     "releaseStage" => "test"
-                  }
+                  },
+                  "unhandled" => true
                 }
               ]
             }
@@ -191,7 +194,7 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports :gen_server bad exit"/1),
-                          "lineNumber" => 218
+                          "lineNumber" => 222
                         }
                         | _
                       ]
@@ -199,7 +202,8 @@ defmodule TowerBugsnagTest do
                   ],
                   "app" => %{
                     "releaseStage" => "test"
-                  }
+                  },
+                  "unhandled" => true
                 }
               ]
             }
@@ -257,7 +261,8 @@ defmodule TowerBugsnagTest do
                     "httpMethod" => "GET",
                     "url" => ^url,
                     "headers" => %{"user-agent" => "httpc client"}
-                  }
+                  },
+                  "unhandled" => true
                 }
               ]
             }
@@ -317,7 +322,8 @@ defmodule TowerBugsnagTest do
                     "httpMethod" => "GET",
                     "url" => ^url,
                     "headers" => %{"user-agent" => "httpc client"}
-                  }
+                  },
+                  "unhandled" => true
                 }
               ]
             }
@@ -337,6 +343,51 @@ defmodule TowerBugsnagTest do
         )
 
         {:ok, _response} = :httpc.request(:get, {url, [{~c"user-agent", "httpc client"}]}, [], [])
+      end)
+    end)
+  end
+
+  test "reports Exception manually", %{bypass: bypass} do
+    waiting_for(fn done ->
+      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+        assert(
+          {
+            :ok,
+            %{
+              "events" => [
+                %{
+                  "exceptions" => [
+                    %{
+                      "errorClass" => "RuntimeError",
+                      "message" => "an error"
+                    }
+                  ],
+                  "app" => %{
+                    "releaseStage" => "test"
+                  },
+                  "unhandled" => false
+                }
+              ]
+            }
+          } = Jason.decode(body)
+        )
+
+        done.()
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+      end)
+
+      in_unlinked_process(fn ->
+        try do
+          raise "an error"
+        rescue
+          exception ->
+            Tower.report_exception(exception, __STACKTRACE__)
+        end
       end)
     end)
   end
