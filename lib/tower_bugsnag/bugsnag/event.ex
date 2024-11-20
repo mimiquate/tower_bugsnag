@@ -18,6 +18,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       ],
       unhandled: !manual_report?(event),
       app: app_data(),
+      device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
       metaData: metadata
@@ -45,6 +46,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       ],
       unhandled: !manual_report?(event),
       app: app_data(),
+      device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
       metaData: metadata
@@ -72,6 +74,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       ],
       unhandled: !manual_report?(event),
       app: app_data(),
+      device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
       metaData: metadata
@@ -98,6 +101,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       unhandled: !manual_report?(event),
       severity: severity_from_tower_level(level),
       app: app_data(),
+      device: device_data(),
       request: request_data(plug_conn)
     }
   end
@@ -152,6 +156,16 @@ defmodule TowerBugsnag.Bugsnag.Event do
     }
   end
 
+  defp device_data do
+    {:ok, hostname} = :inet.gethostname()
+
+    %{
+      hostname: to_string(hostname),
+      osName: os_name(),
+      osVersion: os_version()
+    }
+  end
+
   defp release_stage do
     Application.fetch_env!(:tower_bugsnag, :release_stage)
   end
@@ -190,4 +204,18 @@ defmodule TowerBugsnag.Bugsnag.Event do
 
   defp manual_report?(%{by: nil}), do: true
   defp manual_report?(_), do: false
+
+  defp os_version do
+    case :os.version() do
+      {major, minor, patch} -> "#{major}.#{minor}.#{patch}"
+      version -> inspect(version)
+    end
+  end
+
+  defp os_name do
+    case :os.type() do
+      {family, name} -> "#{family}:#{name}"
+      type -> inspect(type)
+    end
+  end
 end
