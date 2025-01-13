@@ -41,7 +41,7 @@ defmodule TowerBugsnag.MixProject do
       {:tower, "~> 0.7.1"},
 
       # Dev
-      {:ex_doc, "~> 0.35.1", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.36.1", only: :dev, runtime: false},
 
       # Test
       {:bandit, "~> 1.5", only: :test},
