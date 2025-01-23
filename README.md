@@ -4,9 +4,9 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/tower_bugsnag.svg)](https://hex.pm/packages/tower_bugsnag)
 [![Documentation](https://img.shields.io/badge/Documentation-purple.svg)](https://hexdocs.pm/tower_bugsnag)
 
-Elixir error tracking and reporting to [Bugsnag](https://www.bugsnag.com/).
+Elixir exception tracking and reporting to [Insight Hub](https://www.bugsnag.com/) ([formerly](https://smartbear.com/blog/introducing-insight-hub) BugSnag).
 
-[Tower](https://github.com/mimiquate/tower) reporter for Bugsnag.
+[Tower](https://github.com/mimiquate/tower) reporter for Insight Hub.
 
 ## Installation
 
