@@ -38,10 +38,11 @@ defmodule TowerBugsnag.MixProject do
   defp deps do
     [
       {:jason, "~> 1.4"},
-      {:tower, "~> 0.7.1"},
+      {:tower, "~> 0.7.1 or ~> 0.8.0"},
 
       # Dev
       {:ex_doc, "~> 0.37.1", only: :dev, runtime: false},
+      {:blend, "~> 0.4.1", only: :dev},
 
       # Test
       {:bandit, "~> 1.5", only: :test},
