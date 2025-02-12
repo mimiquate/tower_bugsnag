@@ -5,9 +5,9 @@ defmodule TowerBugsnagTest do
   import ExUnit.CaptureLog, only: [capture_log: 1]
 
   setup do
-    bypass = Bypass.open()
+    lasso = Lasso.open()
 
-    Application.put_env(:tower_bugsnag, :base_url, "http://localhost:#{bypass.port}")
+    Application.put_env(:tower_bugsnag, :base_url, "http://localhost:#{lasso.port}")
     Application.put_env(:tower_bugsnag, :api_key, "test-api-key")
     Application.put_env(:tower_bugsnag, :release_stage, :test)
     Application.put_env(:tower, :reporters, [TowerBugsnag])
@@ -18,12 +18,12 @@ defmodule TowerBugsnagTest do
       Application.put_env(:tower, :reporters, [])
     end)
 
-    {:ok, bypass: bypass}
+    {:ok, lasso: lasso}
   end
 
-  test "reports arithmetic error", %{bypass: bypass} do
+  test "reports arithmetic error", %{lasso: lasso} do
     waiting_for(fn done ->
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
@@ -72,9 +72,9 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports throw", %{bypass: bypass} do
+  test "reports throw", %{lasso: lasso} do
     waiting_for(fn done ->
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
@@ -123,9 +123,9 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports abnormal exit", %{bypass: bypass} do
+  test "reports abnormal exit", %{lasso: lasso} do
     waiting_for(fn done ->
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
@@ -174,9 +174,9 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports :gen_server bad exit", %{bypass: bypass} do
+  test "reports :gen_server bad exit", %{lasso: lasso} do
     waiting_for(fn done ->
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
@@ -225,13 +225,13 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "includes exception request data if available with Plug.Cowboy", %{bypass: bypass} do
+  test "includes exception request data if available with Plug.Cowboy", %{lasso: lasso} do
     waiting_for(fn done ->
       # An ephemeral port hopefully not being in the host running this code
       plug_port = 51111
       url = "http://127.0.0.1:#{plug_port}/arithmetic-error"
 
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
@@ -286,13 +286,13 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports throw with Bandit", %{bypass: bypass} do
+  test "reports throw with Bandit", %{lasso: lasso} do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/uncaught-throw"
 
     waiting_for(fn done ->
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
@@ -347,9 +347,9 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports Exception manually", %{bypass: bypass} do
+  test "reports Exception manually", %{lasso: lasso} do
     waiting_for(fn done ->
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
@@ -392,9 +392,9 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports message", %{bypass: bypass} do
+  test "reports message", %{lasso: lasso} do
     waiting_for(fn done ->
-      Bypass.expect_once(bypass, "POST", "/", fn conn ->
+      Lasso.expect_once(lasso, "POST", "/", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert(
