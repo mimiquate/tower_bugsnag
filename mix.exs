@@ -30,7 +30,12 @@ defmodule TowerBugsnag.MixProject do
   def application do
     [
       extra_applications: [:logger, :public_key],
-      env: [base_url: "https://notify.bugsnag.com", api_key: nil, release_stage: nil]
+      env: [
+        base_url: "https://notify.bugsnag.com",
+        api_key: nil,
+        app_version: nil,
+        release_stage: nil
+      ]
     ]
   end
 
