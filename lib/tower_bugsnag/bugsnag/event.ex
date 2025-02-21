@@ -1,4 +1,6 @@
 defmodule TowerBugsnag.Bugsnag.Event do
+  @default_app_type "elixir"
+
   def from_tower_event(
         %Tower.Event{
           kind: :error,
@@ -152,7 +154,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
 
   defp app_data do
     %{
-      releaseStage: release_stage()
+      releaseStage: release_stage(),
+      type: @default_app_type
     }
   end
 
