@@ -155,7 +155,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
   defp app_data do
     %{
       releaseStage: release_stage(),
-      type: @default_app_type
+      type: @default_app_type,
+      version: app_version()
     }
   end
 
@@ -167,6 +168,10 @@ defmodule TowerBugsnag.Bugsnag.Event do
       osName: os_name(),
       osVersion: os_version()
     }
+  end
+
+  defp app_version do
+    Application.fetch_env!(:tower_bugsnag, :app_version)
   end
 
   defp release_stage do

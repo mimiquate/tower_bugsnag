@@ -9,6 +9,7 @@ defmodule TowerBugsnagTest do
 
     Application.put_env(:tower_bugsnag, :base_url, "http://localhost:#{lasso.port}")
     Application.put_env(:tower_bugsnag, :api_key, "test-api-key")
+    Application.put_env(:tower_bugsnag, :app_version, "0.1.0")
     Application.put_env(:tower_bugsnag, :release_stage, :test)
     Application.put_env(:tower, :reporters, [TowerBugsnag])
 
@@ -41,13 +42,14 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports arithmetic error"/1),
-                          "lineNumber" => 69
+                          "lineNumber" => 71
                         }
                         | _
                       ]
                     }
                   ],
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "unhandled" => true
@@ -92,13 +94,14 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports throw"/1),
-                          "lineNumber" => 120
+                          "lineNumber" => 123
                         }
                         | _
                       ]
                     }
                   ],
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "unhandled" => true
@@ -143,13 +146,14 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports abnormal exit"/1),
-                          "lineNumber" => 171
+                          "lineNumber" => 175
                         }
                         | _
                       ]
                     }
                   ],
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "unhandled" => true
@@ -194,13 +198,14 @@ defmodule TowerBugsnagTest do
                           "file" => "test/tower_bugsnag_test.exs",
                           "method" =>
                             ~s(anonymous fn/0 in TowerBugsnagTest."test reports :gen_server bad exit"/1),
-                          "lineNumber" => 222
+                          "lineNumber" => 227
                         }
                         | _
                       ]
                     }
                   ],
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "unhandled" => true
@@ -255,6 +260,7 @@ defmodule TowerBugsnagTest do
                     }
                   ],
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "request" => %{
@@ -316,6 +322,7 @@ defmodule TowerBugsnagTest do
                     }
                   ],
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "request" => %{
@@ -365,6 +372,7 @@ defmodule TowerBugsnagTest do
                     }
                   ],
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "unhandled" => false
@@ -412,6 +420,7 @@ defmodule TowerBugsnagTest do
                   ],
                   "severity" => "info",
                   "app" => %{
+                    "version" => "0.1.0",
                     "releaseStage" => "test"
                   },
                   "unhandled" => false
