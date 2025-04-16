@@ -3,6 +3,7 @@ defmodule TowerBugsnag.MixProject do
 
   @description "Exception tracking and reporting to Insight Hub (formerly BugSnag)"
   @source_url "https://github.com/mimiquate/tower_bugsnag"
+  @changelog_url @source_url <> "/blob/-/CHANGELOG.md"
   @version "0.3.5"
 
   def project do
@@ -63,7 +64,8 @@ defmodule TowerBugsnag.MixProject do
     [
       licenses: ["Apache-2.0"],
       links: %{
-        "GitHub" => @source_url
+        "GitHub" => @source_url,
+        "Changelog" => @changelog_url
       }
     ]
   end
