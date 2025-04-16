@@ -24,7 +24,7 @@ defmodule TowerBugsnag.Bugsnag.Client do
         ~c"#{base_url()}",
         [{@api_key_header, api_key()}],
         ~c"application/json",
-        Jason.encode!(payload)
+        TowerBugsnag.json_module().encode!(payload)
       },
       [
         ssl: [

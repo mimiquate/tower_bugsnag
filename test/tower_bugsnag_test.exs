@@ -56,14 +56,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
       end)
 
       capture_log(fn ->
@@ -108,14 +108,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
       end)
 
       capture_log(fn ->
@@ -160,14 +160,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
       end)
 
       capture_log(fn ->
@@ -212,14 +212,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
       end)
 
       capture_log(fn ->
@@ -272,14 +272,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
       end)
 
       start_supervised!(
@@ -334,14 +334,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"ok" => true}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
       end)
 
       capture_log(fn ->
@@ -379,14 +379,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"id" => "123"}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
       end)
 
       in_unlinked_process(fn ->
@@ -427,14 +427,14 @@ defmodule TowerBugsnagTest do
                 }
               ]
             }
-          } = Jason.decode(body)
+          } = TowerBugsnag.json_module().decode(body)
         )
 
         done.()
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, Jason.encode!(%{"ok" => true}))
+        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
       end)
 
       Tower.report_message(:info, "something interesting happened")
