@@ -73,7 +73,10 @@ defmodule TowerBugsnag.MixProject do
   defp docs do
     [
       main: "readme",
-      extras: ["README.md"]
+      extras: [
+        "README.md": [title: "README"],
+        "CHANGELOG.md": [title: "Changelog"]
+      ]
     ]
   end
 end
