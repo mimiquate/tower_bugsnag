@@ -46,8 +46,7 @@ defmodule TowerBugsnag.MixProject do
       {:tower, "~> 0.7.1 or ~> 0.8.0"},
 
       # Optional
-      # Only needed for Elixir < 1.18
-      {:jason, "~> 1.4", optional: true},
+      {:igniter, "~> 0.6", optional: true},
 
       # Dev
       {:ex_doc, "~> 0.37.1", only: :dev, runtime: false},
