@@ -50,7 +50,7 @@ defmodule TowerBugsnag.MixProject do
       {:jason, "~> 1.4", optional: true},
 
       # Dev
-      {:ex_doc, "~> 0.37.1", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.38.2", only: :dev, runtime: false},
       {:blend, "~> 0.5.0", only: :dev},
 
       # Test
