@@ -140,7 +140,7 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
 
     defp update_existing_bugsnug_config(zipper) do
       zipper
-      |> Igniter.Project.Config.modify_configuration_code(
+      |> Igniter.Project.Config.modify_config_code(
         [:api_key],
         :tower_bugsnug,
         Sourceror.parse_string!(~s[System.get_env("BUGSNUG_API_KEY")])
