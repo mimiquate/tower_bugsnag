@@ -1,8 +1,8 @@
 if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
-  defmodule Mix.Tasks.TowerBugsnug.Install do
-    @example "mix igniter.install tower_bugsnug"
+  defmodule Mix.Tasks.TowerBugsnag.Install do
+    @example "mix igniter.install tower_bugsnag"
 
-    @shortdoc "Installs TowerBugsnug. Invoke with `mix igniter.install tower_bugsnug`"
+    @shortdoc "Installs TowerBugsnag. Invoke with `mix igniter.install tower_bugsnag`"
     @moduledoc """
     #{@shortdoc}
 
@@ -21,7 +21,7 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     import Config
 
     if config_env() == :prod do
-      config :tower_bugsnug, api_key: System.get_env("BUGSNUG_API_KEY")
+      config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
     end
     """
 
@@ -38,8 +38,8 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
       """
     ]
 
-    @bugsnug_config_code """
-    config :tower_bugsnug, api_key: System.get_env("BUGSNUG_API_KEY")
+    @bugsnag_config_code """
+    config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
     """
 
     @impl Igniter.Mix.Task
@@ -62,7 +62,7 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
-      |> add_reporter_to_config(TowerBugsnug)
+      |> add_reporter_to_config(TowerBugsnag)
       |> configure_runtime()
     end
 
@@ -75,7 +75,7 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     end
 
     defp runtime_config_exists?(igniter) do
-      Igniter.Project.Config.configures_key?(igniter, "runtime.exs", :tower_bugsnug, [
+      Igniter.Project.Config.configures_key?(igniter, "runtime.exs", :tower_bugsnag, [
         :api_key
       ])
     end
@@ -90,7 +90,7 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     end
 
     defp update_runtime_config(zipper) do
-      if Igniter.Project.Config.configures_key?(zipper, :tower_bugsnug, :api_key) do
+      if Igniter.Project.Config.configures_key?(zipper, :tower_bugsnag, :api_key) do
         {:ok, zipper}
       else
         add_config_to_prod_block(zipper)
@@ -110,7 +110,7 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     end
 
     defp handle_existing_prod_block(zipper) do
-      if Igniter.Project.Config.configures_key?(zipper, :tower_bugsnug, :api_key) do
+      if Igniter.Project.Config.configures_key?(zipper, :tower_bugsnag, :api_key) do
         {:ok, zipper}
       else
         update_existing_config_or_add_new(zipper)
@@ -118,32 +118,32 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     end
 
     defp update_existing_config_or_add_new(zipper) do
-      case find_existing_bugsnug_config(zipper) do
+      case find_existing_bugsnag_config(zipper) do
         {:ok, _zipper} ->
-          update_existing_bugsnug_config(zipper)
+          update_existing_bugsnag_config(zipper)
 
         _ ->
-          Igniter.Code.Common.add_code(zipper, @bugsnug_config_code)
+          Igniter.Code.Common.add_code(zipper, @bugsnag_config_code)
       end
     end
 
-    defp find_existing_bugsnug_config(zipper) do
+    defp find_existing_bugsnag_config(zipper) do
       Igniter.Code.Function.move_to_function_call_in_current_scope(
         zipper,
         :=,
         2,
         fn call ->
-          Igniter.Code.Function.argument_equals?(call, 0, :tower_bugsnug)
+          Igniter.Code.Function.argument_equals?(call, 0, :tower_bugsnag)
         end
       )
     end
 
-    defp update_existing_bugsnug_config(zipper) do
+    defp update_existing_bugsnag_config(zipper) do
       zipper
       |> Igniter.Project.Config.modify_config_code(
         [:api_key],
-        :tower_bugsnug,
-        Sourceror.parse_string!(~s[System.get_env("BUGSNUG_API_KEY")])
+        :tower_bugsnag,
+        Sourceror.parse_string!(~s[System.get_env("BUGSNAG_API_KEY")])
       )
       |> then(&{:ok, &1})
     end
@@ -151,16 +151,16 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     defp add_prod_block_with_config(zipper) do
       Igniter.Code.Common.add_code(zipper, """
       if config_env() == :prod do
-        #{@bugsnug_config_code}
+        #{@bugsnag_config_code}
       end
       """)
     end
   end
 else
-  defmodule Mix.Tasks.TowerBugsnug.Install do
-    @example "mix igniter.install tower_bugsnug"
+  defmodule Mix.Tasks.TowerBugsnag.Install do
+    @example "mix igniter.install tower_bugsnag"
 
-    @shortdoc "Installs TowerBugsnug. Invoke with `mix igniter.install tower_bugsnug`"
+    @shortdoc "Installs TowerBugsnag. Invoke with `mix igniter.install tower_bugsnag`"
 
     @moduledoc """
     #{@shortdoc}
@@ -177,7 +177,7 @@ else
     @impl Mix.Task
     def run(_argv) do
       Mix.shell().error("""
-      The task 'tower_bugsnug.install' requires igniter and tower > 0.8.3. Please install igniter or update tower and try again.
+      The task 'tower_bugsnag.install' requires igniter and tower > 0.8.3. Please install igniter or update tower and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)
