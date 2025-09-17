@@ -6,17 +6,23 @@ if Code.ensure_loaded?(Tower.Igniter) do
     test "generates everything from scratch" do
       test_project()
       |> Igniter.compose_task("tower_bugsnag.install", [])
-      |> assert_creates("config/config.exs", """
-      import Config
-      config :tower, reporters: [TowerBugsnag]
-      """)
-      |> assert_creates("config/runtime.exs", """
-      import Config
+      |> assert_creates(
+        "config/config.exs",
+        """
+        import Config
+        config :tower, reporters: [TowerBugsnag]
+        """
+      )
+      |> assert_creates(
+        "config/runtime.exs",
+        """
+        import Config
 
-      if config_env() == :prod do
-        config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
-      end
-      """)
+        if config_env() == :prod do
+          config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
+        end
+        """
+      )
     end
 
     test "modifies existing tower configs if available" do
@@ -33,20 +39,26 @@ if Code.ensure_loaded?(Tower.Igniter) do
         }
       )
       |> Igniter.compose_task("tower_bugsnag.install", [])
-      |> assert_has_patch("config/config.exs", """
-      |import Config
-      |
-      - |config :tower, reporters: [TowerEmail]
-      + |config :tower, reporters: [TowerEmail, TowerBugsnag]
-      """)
-      |> assert_has_patch("config/runtime.exs", """
-      |import Config
-      |
-      + |if config_env() == :prod do
-      + |  config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
-      + |end
-      + |
-      """)
+      |> assert_has_patch(
+        "config/config.exs",
+        """
+        |import Config
+        |
+        - |config :tower, reporters: [TowerEmail]
+        + |config :tower, reporters: [TowerEmail, TowerBugsnag]
+        """
+      )
+      |> assert_has_patch(
+        "config/runtime.exs",
+        """
+        |import Config
+        |
+        + |if config_env() == :prod do
+        + |  config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
+        + |end
+        + |
+        """
+      )
     end
 
     test "modifies existing tower configs if config_env() == :prod block exists" do
@@ -67,19 +79,25 @@ if Code.ensure_loaded?(Tower.Igniter) do
         }
       )
       |> Igniter.compose_task("tower_bugsnag.install", [])
-      |> assert_has_patch("config/config.exs", """
-      |import Config
-      |
-      - |config :tower, reporters: [TowerEmail]
-      + |config :tower, reporters: [TowerEmail, TowerBugsnag]
-      """)
-      |> assert_has_patch("config/runtime.exs", """
-      |if config_env() == :prod do
-      |  IO.puts("hello")
-      + |  config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
-      |end
-      |
-      """)
+      |> assert_has_patch(
+        "config/config.exs",
+        """
+        |import Config
+        |
+        - |config :tower, reporters: [TowerEmail]
+        + |config :tower, reporters: [TowerEmail, TowerBugsnag]
+        """
+      )
+      |> assert_has_patch(
+        "config/runtime.exs",
+        """
+        |if config_env() == :prod do
+        |  IO.puts("hello")
+        + |  config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
+        |end
+        |
+        """
+      )
     end
 
     test "does not modify existing tower_bugsnag configs if config_env() == :prod block exists" do
