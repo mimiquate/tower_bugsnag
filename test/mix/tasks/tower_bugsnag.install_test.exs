@@ -19,7 +19,8 @@ if Code.ensure_loaded?(Tower.Igniter) do
         import Config
 
         if config_env() == :prod do
-          config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
+          config :tower_bugsnag,
+            api_key: System.get_env("BUGSNAG_API_KEY")
         end
         """
       )

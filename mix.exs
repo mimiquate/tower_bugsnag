@@ -43,7 +43,11 @@ defmodule TowerBugsnag.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:tower, "~> 0.7.1 or ~> 0.8.0"},
+      {
+        :tower,
+        "~> 0.7.1 or ~> 0.8.0",
+        github: "mimiquate/tower", branch: "tower-igniter-add-reporter-config"
+      },
 
       # Optional
       {:igniter, "~> 0.6", optional: true},
