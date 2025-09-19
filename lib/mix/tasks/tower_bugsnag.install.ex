@@ -1,6 +1,6 @@
 if Code.ensure_loaded?(Igniter) and
      Code.ensure_loaded?(Tower.Igniter) and
-     function_exported?(Tower.Igniter, :configure_reporter, 4) do
+     function_exported?(Tower.Igniter, :runtime_configure_reporter, 3) do
   defmodule Mix.Tasks.TowerBugsnag.Install do
     @example "mix igniter.install tower_bugsnag"
 
@@ -25,8 +25,8 @@ if Code.ensure_loaded?(Igniter) and
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
-      |> Tower.Igniter.configure_reporter(
-        TowerBugsnag,
+      |> Tower.Igniter.reporters_list_append(TowerBugsnag)
+      |> Tower.Igniter.runtime_configure_reporter(
         :tower_bugsnag,
         api_key: ~s[System.get_env("BUGSNAG_API_KEY")]
       )
