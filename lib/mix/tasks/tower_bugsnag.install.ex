@@ -15,8 +15,6 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
 
     use Igniter.Mix.Task
 
-    import Tower.Igniter
-
     @default_runtime_config """
     import Config
 
@@ -62,7 +60,7 @@ if Code.ensure_loaded?(Igniter) && Code.ensure_loaded?(Tower.Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
-      |> add_reporter_to_config(TowerBugsnag)
+      |> Tower.Igniter.reporters_list_append(TowerBugsnag)
       |> configure_runtime()
     end
 
