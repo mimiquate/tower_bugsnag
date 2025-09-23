@@ -15,7 +15,7 @@ Package can be installed by adding `tower_bugsnag` to your list of dependencies 
 ```elixir
 def deps do
   [
-    {:tower_bugsnag, "~> 0.3.6"}
+    {:tower_bugsnag, "~> 0.4.0"}
   ]
 end
 ```
