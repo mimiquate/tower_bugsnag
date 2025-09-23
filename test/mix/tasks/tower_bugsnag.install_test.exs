@@ -17,7 +17,10 @@ if Code.ensure_loaded?(Tower.Igniter) do
         "config/runtime.exs",
         """
         import Config
-        config :tower_bugsnag, api_key: System.get_env("BUGSNAG_API_KEY")
+
+        config :tower_bugsnag,
+          api_key: System.get_env("BUGSNAG_API_KEY"),
+          release_stage: System.get_env("DEPLOYMENT_ENV", to_string(config_env()))
         """
       )
     end

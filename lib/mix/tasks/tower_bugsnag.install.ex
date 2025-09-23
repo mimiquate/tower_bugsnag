@@ -28,8 +28,13 @@ if Code.ensure_loaded?(Igniter) and
       |> Tower.Igniter.reporters_list_append(TowerBugsnag)
       |> Tower.Igniter.runtime_configure_reporter(
         :tower_bugsnag,
-        api_key: {:code, Sourceror.parse_string!(~s[System.get_env("BUGSNAG_API_KEY")])}
+        api_key: code_value(~s[System.get_env("BUGSNAG_API_KEY")]),
+        release_stage: code_value(~s[System.get_env("DEPLOYMENT_ENV", to_string(config_env()))])
       )
+    end
+
+    defp code_value(value) do
+      {:code, Sourceror.parse_string!(value)}
     end
   end
 else
