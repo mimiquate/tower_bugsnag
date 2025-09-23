@@ -1,28 +1,46 @@
+defmodule Mix.Tasks.TowerBugsnag.Install.Docs do
+  @moduledoc false
+
+  @spec short_doc() :: String.t()
+  def short_doc do
+    "Installs TowerBugsnag"
+  end
+
+  @spec example() :: String.t()
+  def example do
+    "mix tower_bugsnag.install"
+  end
+
+  @spec long_doc() :: String.t()
+  def long_doc do
+    """
+    #{short_doc()}
+
+    ## Example
+
+    ```sh
+    #{example()}
+    ```
+    """
+  end
+end
+
 if Code.ensure_loaded?(Igniter) and
      Code.ensure_loaded?(Tower.Igniter) and
      function_exported?(Tower.Igniter, :runtime_configure_reporter, 3) do
   defmodule Mix.Tasks.TowerBugsnag.Install do
-    @example "mix igniter.install tower_bugsnag"
+    @shortdoc "#{__MODULE__.Docs.short_doc()}"
 
-    @shortdoc "Installs TowerBugsnag. Invoke with `mix igniter.install tower_bugsnag`"
-    @moduledoc """
-    #{@shortdoc}
-
-    ## Example
-
-    ```bash
-    #{@example}
-    ```
-    """
+    @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
 
-    @impl Igniter.Mix.Task
+    @impl true
     def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{group: :tower, example: @example}
+      %Igniter.Mix.Task.Info{group: :tower, example: __MODULE__.Docs.example()}
     end
 
-    @impl Igniter.Mix.Task
+    @impl true
     def igniter(igniter) do
       igniter
       |> Tower.Igniter.reporters_list_append(TowerBugsnag)
@@ -39,30 +57,20 @@ if Code.ensure_loaded?(Igniter) and
   end
 else
   defmodule Mix.Tasks.TowerBugsnag.Install do
-    @example "mix igniter.install tower_bugsnag"
+    @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
 
-    @shortdoc "Installs TowerBugsnag. Invoke with `mix igniter.install tower_bugsnag`"
+    @moduledoc __MODULE__.Docs.long_doc()
 
-    @moduledoc """
-    #{@shortdoc}
+    @error_message """
+    The task 'tower_bugsnag.install' requires igniter and tower >= 0.8.4. Please install igniter or update tower and try again.
 
-    ## Example
-
-    ```bash
-    #{@example}
-    ```
+    For more information, see: https://hexdocs.pm/igniter/readme.html#installation
     """
-
     use Mix.Task
 
-    @impl Mix.Task
+    @impl true
     def run(_argv) do
-      Mix.shell().error("""
-      The task 'tower_bugsnag.install' requires igniter and tower >= 0.8.4. Please install igniter or update tower and try again.
-
-      For more information, see: https://hexdocs.pm/igniter/readme.html#installation
-      """)
-
+      Mix.shell().error(@error_message)
       exit({:shutdown, 1})
     end
   end
