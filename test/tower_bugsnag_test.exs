@@ -5,9 +5,9 @@ defmodule TowerBugsnagTest do
   import ExUnit.CaptureLog, only: [capture_log: 1]
 
   setup do
-    lasso = Lasso.open()
+    {:ok, test_server} = TestServer.start()
 
-    Application.put_env(:tower_bugsnag, :base_url, "http://localhost:#{lasso.port}")
+    Application.put_env(:tower_bugsnag, :base_url, TestServer.url(test_server))
     Application.put_env(:tower_bugsnag, :api_key, "test-api-key")
     Application.put_env(:tower_bugsnag, :app_version, "0.1.0")
     Application.put_env(:tower_bugsnag, :release_stage, :test)
@@ -19,52 +19,57 @@ defmodule TowerBugsnagTest do
       Application.put_env(:tower, :reporters, [])
     end)
 
-    {:ok, lasso: lasso}
+    {:ok, test_server: test_server}
   end
 
-  test "reports arithmetic error", %{lasso: lasso} do
+  test "reports arithmetic error", %{test_server: test_server} do
     waiting_for(fn done ->
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "ArithmeticError",
-                      "message" => "bad argument in arithmetic expression",
-                      "stacktrace" => [
-                        %{
-                          "file" => "test/tower_bugsnag_test.exs",
-                          "method" =>
-                            ~s(anonymous fn/0 in TowerBugsnagTest."test reports arithmetic error"/1),
-                          "lineNumber" => 71
-                        }
-                        | _
-                      ]
-                    }
-                  ],
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "unhandled" => true
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "ArithmeticError",
+                        "message" => "bad argument in arithmetic expression",
+                        "stacktrace" => [
+                          %{
+                            "file" => "test/tower_bugsnag_test.exs",
+                            "method" =>
+                              ~s(anonymous fn/0 in TowerBugsnagTest."test reports arithmetic error"/1),
+                            "lineNumber" => 76
+                          }
+                          | _
+                        ]
+                      }
+                    ],
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "unhandled" => true
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
+        end
+      )
 
       capture_log(fn ->
         in_unlinked_process(fn ->
@@ -74,49 +79,54 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports throw", %{lasso: lasso} do
+  test "reports throw", %{test_server: test_server} do
     waiting_for(fn done ->
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "(throw) \"something\"",
-                      "message" => "\"something\"",
-                      "stacktrace" => [
-                        %{
-                          "file" => "test/tower_bugsnag_test.exs",
-                          "method" =>
-                            ~s(anonymous fn/0 in TowerBugsnagTest."test reports throw"/1),
-                          "lineNumber" => 123
-                        }
-                        | _
-                      ]
-                    }
-                  ],
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "unhandled" => true
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "(throw) \"something\"",
+                        "message" => "\"something\"",
+                        "stacktrace" => [
+                          %{
+                            "file" => "test/tower_bugsnag_test.exs",
+                            "method" =>
+                              ~s(anonymous fn/0 in TowerBugsnagTest."test reports throw"/1),
+                            "lineNumber" => 133
+                          }
+                          | _
+                        ]
+                      }
+                    ],
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "unhandled" => true
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
+        end
+      )
 
       capture_log(fn ->
         in_unlinked_process(fn ->
@@ -126,49 +136,54 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports abnormal exit", %{lasso: lasso} do
+  test "reports abnormal exit", %{test_server: test_server} do
     waiting_for(fn done ->
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "(exit) :abnormal",
-                      "message" => ":abnormal",
-                      "stacktrace" => [
-                        %{
-                          "file" => "test/tower_bugsnag_test.exs",
-                          "method" =>
-                            ~s(anonymous fn/0 in TowerBugsnagTest."test reports abnormal exit"/1),
-                          "lineNumber" => 175
-                        }
-                        | _
-                      ]
-                    }
-                  ],
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "unhandled" => true
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "(exit) :abnormal",
+                        "message" => ":abnormal",
+                        "stacktrace" => [
+                          %{
+                            "file" => "test/tower_bugsnag_test.exs",
+                            "method" =>
+                              ~s(anonymous fn/0 in TowerBugsnagTest."test reports abnormal exit"/1),
+                            "lineNumber" => 190
+                          }
+                          | _
+                        ]
+                      }
+                    ],
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "unhandled" => true
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
+        end
+      )
 
       capture_log(fn ->
         in_unlinked_process(fn ->
@@ -178,49 +193,54 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports :gen_server bad exit", %{lasso: lasso} do
+  test "reports :gen_server bad exit", %{test_server: test_server} do
     waiting_for(fn done ->
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "(exit) bad return value: \"bad value\"",
-                      "message" => "bad return value: \"bad value\"",
-                      "stacktrace" => [
-                        %{
-                          "file" => "test/tower_bugsnag_test.exs",
-                          "method" =>
-                            ~s(anonymous fn/0 in TowerBugsnagTest."test reports :gen_server bad exit"/1),
-                          "lineNumber" => 227
-                        }
-                        | _
-                      ]
-                    }
-                  ],
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "unhandled" => true
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "(exit) bad return value: \"bad value\"",
+                        "message" => "bad return value: \"bad value\"",
+                        "stacktrace" => [
+                          %{
+                            "file" => "test/tower_bugsnag_test.exs",
+                            "method" =>
+                              ~s(anonymous fn/0 in TowerBugsnagTest."test reports :gen_server bad exit"/1),
+                            "lineNumber" => 247
+                          }
+                          | _
+                        ]
+                      }
+                    ],
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "unhandled" => true
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
+        end
+      )
 
       capture_log(fn ->
         in_unlinked_process(fn ->
@@ -230,57 +250,65 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "includes exception request data if available with Plug.Cowboy", %{lasso: lasso} do
+  test "includes exception request data if available with Plug.Cowboy", %{
+    test_server: test_server
+  } do
     waiting_for(fn done ->
       # An ephemeral port hopefully not being in the host running this code
       plug_port = 51111
       url = "http://127.0.0.1:#{plug_port}/arithmetic-error"
 
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "ArithmeticError",
-                      "message" => "bad argument in arithmetic expression",
-                      "stacktrace" => [
-                        %{
-                          "file" => "test/support/error_test_plug.ex",
-                          "method" => ~s(anonymous fn/2 in TowerBugsnag.ErrorTestPlug.do_match/4),
-                          "lineNumber" => 8
-                        }
-                        | _
-                      ]
-                    }
-                  ],
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "request" => %{
-                    "httpMethod" => "GET",
-                    "url" => ^url,
-                    "headers" => %{"user-agent" => "httpc client"}
-                  },
-                  "unhandled" => true
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "ArithmeticError",
+                        "message" => "bad argument in arithmetic expression",
+                        "stacktrace" => [
+                          %{
+                            "file" => "test/support/error_test_plug.ex",
+                            "method" =>
+                              ~s(anonymous fn/2 in TowerBugsnag.ErrorTestPlug.do_match/4),
+                            "lineNumber" => 8
+                          }
+                          | _
+                        ]
+                      }
+                    ],
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "request" => %{
+                      "httpMethod" => "GET",
+                      "url" => ^url,
+                      "headers" => %{"user-agent" => "httpc client"}
+                    },
+                    "unhandled" => true
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
+        end
+      )
 
       start_supervised!(
         {Plug.Cowboy, plug: TowerBugsnag.ErrorTestPlug, scheme: :http, port: plug_port}
@@ -292,57 +320,63 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports throw with Bandit", %{lasso: lasso} do
+  test "reports throw with Bandit", %{test_server: test_server} do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/uncaught-throw"
 
     waiting_for(fn done ->
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "(throw) \"something\"",
-                      "message" => "\"something\"",
-                      "stacktrace" => [
-                        %{
-                          "file" => "test/support/error_test_plug.ex",
-                          "method" => ~s(anonymous fn/2 in TowerBugsnag.ErrorTestPlug.do_match/4),
-                          "lineNumber" => 14
-                        }
-                        | _
-                      ]
-                    }
-                  ],
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "request" => %{
-                    "httpMethod" => "GET",
-                    "url" => ^url,
-                    "headers" => %{"user-agent" => "httpc client"}
-                  },
-                  "unhandled" => true
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "(throw) \"something\"",
+                        "message" => "\"something\"",
+                        "stacktrace" => [
+                          %{
+                            "file" => "test/support/error_test_plug.ex",
+                            "method" =>
+                              ~s(anonymous fn/2 in TowerBugsnag.ErrorTestPlug.do_match/4),
+                            "lineNumber" => 14
+                          }
+                          | _
+                        ]
+                      }
+                    ],
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "request" => %{
+                      "httpMethod" => "GET",
+                      "url" => ^url,
+                      "headers" => %{"user-agent" => "httpc client"}
+                    },
+                    "unhandled" => true
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
+        end
+      )
 
       capture_log(fn ->
         start_supervised!(
@@ -354,40 +388,45 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports Exception manually", %{lasso: lasso} do
+  test "reports Exception manually", %{test_server: test_server} do
     waiting_for(fn done ->
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "RuntimeError",
-                      "message" => "an error"
-                    }
-                  ],
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "unhandled" => false
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "RuntimeError",
+                        "message" => "an error"
+                      }
+                    ],
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "unhandled" => false
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"id" => "123"}))
+        end
+      )
 
       in_unlinked_process(fn ->
         try do
@@ -400,42 +439,47 @@ defmodule TowerBugsnagTest do
     end)
   end
 
-  test "reports message", %{lasso: lasso} do
+  test "reports message", %{test_server: test_server} do
     waiting_for(fn done ->
-      Lasso.expect_once(lasso, "POST", "/", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert(
-          {
-            :ok,
-            %{
-              "events" => [
-                %{
-                  "exceptions" => [
-                    %{
-                      "errorClass" => "\"something interesting happened\"",
-                      "message" => "\"something interesting happened\"",
-                      "stacktrace" => []
-                    }
-                  ],
-                  "severity" => "info",
-                  "app" => %{
-                    "version" => "0.1.0",
-                    "releaseStage" => "test"
-                  },
-                  "unhandled" => false
-                }
-              ]
-            }
-          } = TowerBugsnag.json_module().decode(body)
-        )
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "\"something interesting happened\"",
+                        "message" => "\"something interesting happened\"",
+                        "stacktrace" => []
+                      }
+                    ],
+                    "severity" => "info",
+                    "app" => %{
+                      "version" => "0.1.0",
+                      "releaseStage" => "test"
+                    },
+                    "unhandled" => false
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
 
-        done.()
+          done.()
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
+        end
+      )
 
       Tower.report_message(:info, "something interesting happened")
     end)
