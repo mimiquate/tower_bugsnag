@@ -20,7 +20,15 @@ def deps do
 end
 ```
 
-## Usage
+## Setup
+
+### Option A: Automated setup
+
+```sh
+$ mix tower_bugsnag.install
+```
+
+### Option B: Manual setup
 
 Register `TowerBugsnag` as a reporter.
 
@@ -54,7 +62,7 @@ That's it.
 It will report any errors (exceptions, throws or abnormal exits) within your application. That includes errors in
 any plug call (including Phoenix), Oban job, async task or any other Elixir process.
 
-### Manual reporting
+## Manual reporting
 
 You can manually report errors just by informing `Tower` about any manually caught exceptions, throws or abnormal exits.
 
