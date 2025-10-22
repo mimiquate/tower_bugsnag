@@ -57,15 +57,17 @@ if config_env() == :prod do
 end
 ```
 
+## Reporting
+
 That's it.
+There's no extra source code needed to get reports in BugSnag.
 
-It will report any errors (exceptions, throws or abnormal exits) within your application. That includes errors in
-any plug call (including Phoenix), Oban job, async task or any other Elixir process.
+Tower will automatically report any errors (exceptions, throws or abnormal exits) occurring in your application.
+That includes errors in any plug call (including Phoenix), Oban jobs, async task or any other Elixir process.
 
-## Manual reporting
+### Manual reporting
 
 You can manually report errors just by informing `Tower` about any manually caught exceptions, throws or abnormal exits.
-
 
 ```elixir
 try do
