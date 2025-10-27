@@ -2,112 +2,84 @@ defmodule TowerBugsnag.Bugsnag.Event do
   @default_app_type "elixir"
 
   def from_tower_event(
-        %Tower.Event{
-          kind: :error,
-          reason: exception,
-          stacktrace: stacktrace,
-          plug_conn: plug_conn,
-          metadata: metadata
-        } = event
+        %Tower.Event{kind: :error, reason: exception, stacktrace: stacktrace} = tower_event
       ) do
-    %{
-      exceptions: [
-        %{
-          errorClass: inspect(exception.__struct__),
-          message: Exception.message(exception),
-          stacktrace: stacktrace_entries(stacktrace)
-        }
-      ],
-      unhandled: !manual_report?(event),
-      app: app_data(),
-      device: device_data(),
-      user: user_data(metadata),
-      request: request_data(plug_conn),
-      metaData: json_prepare(metadata)
-    }
+    exception_event(
+      inspect(exception.__struct__),
+      Exception.message(exception),
+      stacktrace,
+      event_context(tower_event)
+    )
   end
 
   def from_tower_event(
-        %Tower.Event{
-          kind: :throw,
-          reason: value,
-          stacktrace: stacktrace,
-          plug_conn: plug_conn,
-          metadata: metadata
-        } = event
+        %Tower.Event{kind: :throw, reason: value, stacktrace: stacktrace} = tower_event
       ) do
     formatted_value = inspect(value)
 
-    %{
-      exceptions: [
-        %{
-          errorClass: "(throw) #{formatted_value}",
-          message: formatted_value,
-          stacktrace: stacktrace_entries(stacktrace)
-        }
-      ],
-      unhandled: !manual_report?(event),
-      app: app_data(),
-      device: device_data(),
-      user: user_data(metadata),
-      request: request_data(plug_conn),
-      metaData: json_prepare(metadata)
-    }
+    exception_event(
+      "(throw) #{formatted_value}",
+      formatted_value,
+      stacktrace,
+      event_context(tower_event)
+    )
   end
 
   def from_tower_event(
-        %Tower.Event{
-          kind: :exit,
-          reason: reason,
-          stacktrace: stacktrace,
-          plug_conn: plug_conn,
-          metadata: metadata
-        } = event
+        %Tower.Event{kind: :exit, reason: reason, stacktrace: stacktrace} = tower_event
       ) do
     formatted_reason = Exception.format_exit(reason)
 
-    %{
-      exceptions: [
+    exception_event(
+      "(exit) #{formatted_reason}",
+      formatted_reason,
+      stacktrace,
+      event_context(tower_event)
+    )
+  end
+
+  def from_tower_event(
+        %Tower.Event{level: level, kind: :message, reason: message, stacktrace: stacktrace} =
+          tower_event
+      ) do
+    exception_event(
+      inspect(message),
+      inspect(message),
+      stacktrace,
+      event_context(
+        tower_event,
+        severity: severity_from_tower_level(level)
+      )
+    )
+  end
+
+  defp exception_event(class, message, stacktrace, context) do
+    context
+    |> Map.put(
+      :exceptions,
+      [
         %{
-          errorClass: "(exit) #{formatted_reason}",
-          message: formatted_reason,
+          errorClass: class,
+          message: message,
           stacktrace: stacktrace_entries(stacktrace)
         }
-      ],
-      unhandled: !manual_report?(event),
+      ]
+    )
+  end
+
+  defp event_context(
+         %Tower.Event{plug_conn: plug_conn, metadata: metadata} = tower_event,
+         extra \\ %{}
+       ) do
+    %{
+      unhandled: !manual_report?(tower_event),
       app: app_data(),
       device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
       metaData: json_prepare(metadata)
     }
-  end
-
-  def from_tower_event(
-        %Tower.Event{
-          level: level,
-          kind: :message,
-          reason: message,
-          stacktrace: stacktrace,
-          plug_conn: plug_conn,
-          metadata: metadata
-        } = event
-      ) do
-    %{
-      exceptions: [
-        %{
-          errorClass: inspect(message),
-          message: inspect(message),
-          stacktrace: stacktrace_entries(stacktrace)
-        }
-      ],
-      unhandled: !manual_report?(event),
-      severity: severity_from_tower_level(level),
-      app: app_data(),
-      device: device_data(),
-      request: request_data(plug_conn),
-      metaData: json_prepare(metadata)
-    }
+    |> Map.merge(Enum.into(extra, %{}))
   end
 
   defp stacktrace_entries(nil) do
