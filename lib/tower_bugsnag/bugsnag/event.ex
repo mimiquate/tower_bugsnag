@@ -8,7 +8,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       inspect(exception.__struct__),
       Exception.message(exception),
       stacktrace,
-      event_context(tower_event)
+      event_attributes(tower_event)
     )
   end
 
@@ -21,7 +21,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       "(throw) #{formatted_value}",
       formatted_value,
       stacktrace,
-      event_context(tower_event)
+      event_attributes(tower_event)
     )
   end
 
@@ -34,7 +34,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       "(exit) #{formatted_reason}",
       formatted_reason,
       stacktrace,
-      event_context(tower_event)
+      event_attributes(tower_event)
     )
   end
 
@@ -46,15 +46,15 @@ defmodule TowerBugsnag.Bugsnag.Event do
       inspect(message),
       inspect(message),
       stacktrace,
-      event_context(
+      event_attributes(
         tower_event,
         severity: severity_from_tower_level(level)
       )
     )
   end
 
-  defp exception_event(class, message, stacktrace, context) do
-    context
+  defp exception_event(class, message, stacktrace, attributes) do
+    attributes
     |> Map.put(
       :exceptions,
       [
@@ -67,7 +67,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
     )
   end
 
-  defp event_context(
+  defp event_attributes(
          %Tower.Event{plug_conn: plug_conn, metadata: metadata} = tower_event,
          extra \\ %{}
        ) do
