@@ -23,7 +23,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
-      metaData: metadata
+      metaData: json_prepare(metadata)
     }
   end
 
@@ -51,7 +51,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
-      metaData: metadata
+      metaData: json_prepare(metadata)
     }
   end
 
@@ -79,7 +79,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
-      metaData: metadata
+      metaData: json_prepare(metadata)
     }
   end
 
@@ -89,7 +89,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
           kind: :message,
           reason: message,
           stacktrace: stacktrace,
-          plug_conn: plug_conn
+          plug_conn: plug_conn,
+          metadata: metadata
         } = event
       ) do
     %{
@@ -104,7 +105,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
       severity: severity_from_tower_level(level),
       app: app_data(),
       device: device_data(),
-      request: request_data(plug_conn)
+      request: request_data(plug_conn),
+      metaData: json_prepare(metadata)
     }
   end
 
@@ -226,4 +228,30 @@ defmodule TowerBugsnag.Bugsnag.Event do
       type -> inspect(type)
     end
   end
+
+  defp json_prepare(map) when is_map(map) do
+    map
+    |> Enum.map(fn {k, v} ->
+      {json_prepare(k), json_prepare(v)}
+    end)
+    |> Enum.into(%{})
+  end
+
+  defp json_prepare(list) when is_list(list) do
+    list
+    |> Enum.map(fn element ->
+      json_prepare(element)
+    end)
+  end
+
+  defp json_prepare(value)
+       when is_tuple(value) or
+              is_pid(value) or
+              is_reference(value) or
+              is_port(value) or
+              is_function(value) do
+    inspect(value)
+  end
+
+  defp json_prepare(value), do: value
 end
