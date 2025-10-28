@@ -1,7 +1,7 @@
 defmodule TowerBugsnag.MixProject do
   use Mix.Project
 
-  @description "Exception tracking and reporting to Insight Hub (formerly BugSnag)"
+  @description "Exception tracking and reporting to SmartBear BugSnag"
   @source_url "https://github.com/mimiquate/tower_bugsnag"
   @changelog_url @source_url <> "/blob/-/CHANGELOG.md"
   @version "0.4.1"
