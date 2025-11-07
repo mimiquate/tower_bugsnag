@@ -201,6 +201,8 @@ defmodule TowerBugsnag.Bugsnag.Event do
     end
   end
 
+  defp json_prepare(struct) when is_struct(struct), do: struct
+
   defp json_prepare(map) when is_map(map) do
     map
     |> Enum.map(fn {k, v} ->
