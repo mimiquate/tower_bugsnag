@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Handles and logs errors occurring when sending event to BugSnap API (#90)
+- Handles and logs errors occurring when sending event to BugSnag API (#90)
 
 ## [0.4.2] - 2025-11-07
 
