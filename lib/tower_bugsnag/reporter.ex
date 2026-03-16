@@ -14,7 +14,7 @@ defmodule TowerBugsnag.Reporter do
             log_report_error(reason)
 
           {:ok, {status_code, _headers, body}} when status_code in 400..599 ->
-            log_report_error(body)
+            log_report_error({status_code, body})
 
           _ ->
             nil

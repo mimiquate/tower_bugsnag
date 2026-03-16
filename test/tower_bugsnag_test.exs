@@ -565,7 +565,7 @@ defmodule TowerBugsnagTest do
 
                Process.sleep(100)
              end) =~
-               ~r/\[TowerBugsnag\] Error reporting event to BugSnag: "null"/
+               ~r/\[TowerBugsnag\] Error reporting event to BugSnag: {400, "null"}/
     end)
   end
 
@@ -589,7 +589,7 @@ defmodule TowerBugsnagTest do
 
                Process.sleep(100)
              end) =~
-               ~r/\[TowerBugsnag\] Error reporting event to BugSnag: "null"/
+               ~r/\[TowerBugsnag\] Error reporting event to BugSnag: {500, "null"}/
     end)
   end
 
