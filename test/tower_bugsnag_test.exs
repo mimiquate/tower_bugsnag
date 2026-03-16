@@ -7,17 +7,11 @@ defmodule TowerBugsnagTest do
   setup do
     {:ok, test_server} = TestServer.start()
 
-    Application.put_env(:tower_bugsnag, :base_url, TestServer.url(test_server))
-    Application.put_env(:tower_bugsnag, :api_key, "test-api-key")
-    Application.put_env(:tower_bugsnag, :app_version, "0.1.0")
-    Application.put_env(:tower_bugsnag, :release_stage, :test)
-    Application.put_env(:tower, :reporters, [TowerBugsnag])
-
-    on_exit(fn ->
-      Application.put_env(:tower_bugsnag, :api_key, nil)
-      Application.put_env(:tower_bugsnag, :release_stage, nil)
-      Application.put_env(:tower, :reporters, [])
-    end)
+    put_env(:tower_bugsnag, :base_url, TestServer.url(test_server))
+    put_env(:tower_bugsnag, :api_key, "test-api-key")
+    put_env(:tower_bugsnag, :app_version, "0.1.0")
+    put_env(:tower_bugsnag, :release_stage, :test)
+    put_env(:tower, :reporters, [TowerBugsnag])
 
     {:ok, test_server: test_server}
   end
@@ -46,7 +40,7 @@ defmodule TowerBugsnagTest do
                             "file" => "test/tower_bugsnag_test.exs",
                             "method" =>
                               ~s(anonymous fn/0 in TowerBugsnagTest."test reports arithmetic error"/1),
-                            "lineNumber" => 76
+                            "lineNumber" => 70
                           }
                           | _
                         ]
@@ -103,7 +97,7 @@ defmodule TowerBugsnagTest do
                             "file" => "test/tower_bugsnag_test.exs",
                             "method" =>
                               ~s(anonymous fn/0 in TowerBugsnagTest."test reports throw"/1),
-                            "lineNumber" => 133
+                            "lineNumber" => 127
                           }
                           | _
                         ]
@@ -160,7 +154,7 @@ defmodule TowerBugsnagTest do
                             "file" => "test/tower_bugsnag_test.exs",
                             "method" =>
                               ~s(anonymous fn/0 in TowerBugsnagTest."test reports abnormal exit"/1),
-                            "lineNumber" => 190
+                            "lineNumber" => 184
                           }
                           | _
                         ]
@@ -217,7 +211,7 @@ defmodule TowerBugsnagTest do
                             "file" => "test/tower_bugsnag_test.exs",
                             "method" =>
                               ~s(anonymous fn/0 in TowerBugsnagTest."test reports :gen_server bad exit"/1),
-                            "lineNumber" => 247
+                            "lineNumber" => 241
                           }
                           | _
                         ]
@@ -548,6 +542,67 @@ defmodule TowerBugsnagTest do
     end)
   end
 
+  test "logs client request error message", %{test_server: test_server} do
+    waiting_for(fn done ->
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          done.()
+
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(
+            400,
+            TowerBugsnag.json_module().encode!(nil)
+          )
+        end
+      )
+
+      assert capture_log(fn ->
+               assert :ok = Tower.report_message(:info, "something")
+
+               Process.sleep(100)
+             end) =~
+               ~r/\[TowerBugsnag\] Error reporting event to BugSnag: "null"/
+    end)
+  end
+
+  test "logs BugSnag internal server error", %{test_server: test_server} do
+    waiting_for(fn done ->
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          done.()
+
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(500, TowerBugsnag.json_module().encode!(nil))
+        end
+      )
+
+      assert capture_log(fn ->
+               assert :ok = Tower.report_message(:info, "something")
+
+               Process.sleep(100)
+             end) =~
+               ~r/\[TowerBugsnag\] Error reporting event to BugSnag: "null"/
+    end)
+  end
+
+  test "logs network error" do
+    put_env(:tower_bugsnag, :base_url, "")
+
+    assert capture_log(fn ->
+             assert :ok = Tower.report_message(:info, "something")
+
+             Process.sleep(100)
+           end) =~ ~r/\[TowerBugsnag\] Error reporting event to BugSnag: {:no_scheme}/
+  end
+
   defp waiting_for(fun) do
     # ref message synchronization trick copied from
     # https://github.com/PSPDFKit-labs/bypass/issues/112
@@ -567,5 +622,18 @@ defmodule TowerBugsnagTest do
     pid
     |> Task.Supervisor.async_nolink(fun)
     |> Task.yield()
+  end
+
+  defp put_env(app, key, value) do
+    original_value = Application.get_env(app, key)
+    Application.put_env(app, key, value)
+
+    on_exit(fn ->
+      if original_value == nil do
+        Application.delete_env(app, key)
+      else
+        Application.put_env(app, key, original_value)
+      end
+    end)
   end
 end

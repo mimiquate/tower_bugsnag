@@ -38,6 +38,19 @@ defmodule TowerBugsnag.Bugsnag.Client do
       ],
       []
     )
+    |> handle_response()
+  end
+
+  defp handle_response({:ok, {{_http_version, status_code, _status_text}, headers, body}}) do
+    {:ok, {status_code, headers, to_string(body)}}
+  end
+
+  defp handle_response({:ok, {status_code, body}}) do
+    {:ok, {status_code, nil, to_string(body)}}
+  end
+
+  defp handle_response({:error, _reason} = response) do
+    response
   end
 
   defp notifier do
