@@ -77,7 +77,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       device: device_data(),
       user: user_data(metadata),
       request: request_data(plug_conn),
-      metaData: json_prepare(metadata)
+      metaData: metadata |> Map.drop([:user, :user_id]) |> json_prepare()
     }
     |> Map.merge(Enum.into(extra, %{}))
   end
