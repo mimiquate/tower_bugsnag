@@ -176,8 +176,10 @@ defmodule TowerBugsnag.Bugsnag.Event do
     defp request_data(_), do: %{}
   end
 
+  defp user_data(%{user: user_map}), do: user_map
+
   defp user_data(%{user_id: user_id}) do
-    %{user: %{id: user_id}}
+    %{id: user_id}
   end
 
   defp user_data(_) do
