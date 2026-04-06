@@ -570,6 +570,9 @@ defmodule TowerBugsnagTest do
                       "id" => 1,
                       "name" => "Test User",
                       "email" => "test@example.com"
+                    },
+                    "metaData" => %{
+                      "user" => %{"extra_key" => "extra"}
                     }
                   }
                 ]
@@ -589,7 +592,7 @@ defmodule TowerBugsnagTest do
         :info,
         "something",
         metadata: %{
-          user: %{id: 1, name: "Test User", email: "test@example.com"}
+          user: %{id: 1, name: "Test User", email: "test@example.com", extra_key: "extra"}
         }
       )
     end)

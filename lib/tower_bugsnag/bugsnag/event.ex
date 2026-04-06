@@ -1,5 +1,6 @@
 defmodule TowerBugsnag.Bugsnag.Event do
   @default_app_type "elixir"
+  @main_user_fields [:id, :name, :email]
 
   def from_tower_event(
         %Tower.Event{kind: :error, reason: exception, stacktrace: stacktrace} = tower_event
@@ -71,15 +72,30 @@ defmodule TowerBugsnag.Bugsnag.Event do
          %Tower.Event{plug_conn: plug_conn, metadata: metadata} = tower_event,
          extra \\ %{}
        ) do
+    user_data = user_data(metadata)
+
     %{
       unhandled: !manual_report?(tower_event),
       app: app_data(),
       device: device_data(),
-      user: user_data(metadata),
       request: request_data(plug_conn),
-      metaData: metadata |> Map.drop([:user, :user_id]) |> json_prepare()
+      metaData: metadata |> prepare_meta |> json_prepare()
     }
+    |> maybe_add_user(user_data)
     |> Map.merge(Enum.into(extra, %{}))
+  end
+
+  defp prepare_meta(metadata) do
+    Map.get_and_update(metadata, :user, fn user_data ->
+      updated_user_data = (user_data || %{}) |> Map.drop(@main_user_fields)
+
+      if updated_user_data == %{} do
+        :pop
+      else
+        {user_data, updated_user_data}
+      end
+    end)
+    |> then(fn {_, meta} -> Map.drop(meta, [:user_id]) end)
   end
 
   defp stacktrace_entries(nil) do
@@ -176,15 +192,18 @@ defmodule TowerBugsnag.Bugsnag.Event do
     defp request_data(_), do: %{}
   end
 
-  defp user_data(%{user: user_map}), do: user_map
+  defp user_data(%{user: user_map}), do: Map.take(user_map, @main_user_fields)
 
   defp user_data(%{user_id: user_id}) do
     %{id: user_id}
   end
 
   defp user_data(_) do
-    %{}
+    nil
   end
+
+  defp maybe_add_user(data, nil), do: data
+  defp maybe_add_user(data, user_data), do: Map.put(data, :user, user_data)
 
   defp manual_report?(%{by: nil}), do: true
   defp manual_report?(_), do: false
