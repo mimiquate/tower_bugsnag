@@ -542,6 +542,113 @@ defmodule TowerBugsnagTest do
     end)
   end
 
+  test "supports user information (using user key)", %{
+    test_server: test_server
+  } do
+    waiting_for(fn done ->
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "\"something\"",
+                        "message" => "\"something\""
+                      }
+                    ],
+                    "severity" => "info",
+                    "user" => %{
+                      "id" => 1,
+                      "name" => "Test User",
+                      "email" => "test@example.com"
+                    },
+                    "metaData" => %{
+                      "user" => %{"extra_key" => "extra"}
+                    }
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
+
+          done.()
+
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
+        end
+      )
+
+      Tower.report_message(
+        :info,
+        "something",
+        metadata: %{
+          user: %{id: 1, name: "Test User", email: "test@example.com", extra_key: "extra"}
+        }
+      )
+    end)
+  end
+
+  test "supports user information (using user_id key)", %{
+    test_server: test_server
+  } do
+    waiting_for(fn done ->
+      TestServer.add(
+        test_server,
+        "/",
+        via: :post,
+        to: fn conn ->
+          {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+          assert(
+            {
+              :ok,
+              %{
+                "events" => [
+                  %{
+                    "exceptions" => [
+                      %{
+                        "errorClass" => "\"something\"",
+                        "message" => "\"something\""
+                      }
+                    ],
+                    "severity" => "info",
+                    "user" => %{
+                      "id" => 1
+                    }
+                  }
+                ]
+              }
+            } = TowerBugsnag.json_module().decode(body)
+          )
+
+          done.()
+
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.resp(200, TowerBugsnag.json_module().encode!(%{"ok" => true}))
+        end
+      )
+
+      Tower.report_message(
+        :info,
+        "something",
+        metadata: %{
+          user_id: 1
+        }
+      )
+    end)
+  end
+
   test "logs client request error message", %{test_server: test_server} do
     waiting_for(fn done ->
       TestServer.add(
