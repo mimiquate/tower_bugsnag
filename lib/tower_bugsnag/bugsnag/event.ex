@@ -72,8 +72,6 @@ defmodule TowerBugsnag.Bugsnag.Event do
          %Tower.Event{plug_conn: plug_conn, metadata: metadata} = tower_event,
          extra \\ %{}
        ) do
-    user_data = user_data(metadata)
-
     %{
       unhandled: !manual_report?(tower_event),
       app: app_data(),
@@ -81,7 +79,7 @@ defmodule TowerBugsnag.Bugsnag.Event do
       request: request_data(plug_conn),
       metaData: metadata |> prepare_meta |> json_prepare()
     }
-    |> maybe_add_user(user_data)
+    |> maybe_add_user(user_data(metadata))
     |> Map.merge(Enum.into(extra, %{}))
   end
 
