@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2026-04-18
+
+### Added
+
+- BugSnag special user object fields can now be set/reported via Tower metadata user.id, user.name and user.email (#94)
+
 ## [0.4.3] - 2026-03-16
 
 ### Added
@@ -127,6 +133,7 @@ automatically.
 - Reports throws
 - Reports abnormal exits
 
+[0.4.4]: https://github.com/mimiquate/tower_bugsnag/compare/v0.4.3...v0.4.4/
 [0.4.3]: https://github.com/mimiquate/tower_bugsnag/compare/v0.4.2...v0.4.3/
 [0.4.2]: https://github.com/mimiquate/tower_bugsnag/compare/v0.4.1...v0.4.2/
 [0.4.1]: https://github.com/mimiquate/tower_bugsnag/compare/v0.4.0...v0.4.1/
